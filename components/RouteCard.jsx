@@ -1,244 +1,132 @@
 import React from 'react';
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
-import { ThemedView } from '@/components/themed-view';
+import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Feather } from '@expo/vector-icons';
- import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Colors } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 
-export default function RouteCard({ route, isFavourite = false }) {
+export default function RouteCard({ route }) {
   const router = useRouter();
   const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
-
-  const handlePress = () => {
-    router.push({
-      pathname: '/details',
-      params: { id: route.id.toString() },
-    });
-  };
-
-  const getStatusColor = (status) => {
-    if (status === 'Available') {
-      return '#10B981'; // Green
-    }
-    return '#F59E0B'; // Orange/Amber
-  };
+  const theme = Colors[colorScheme ?? 'light'];
 
   return (
-    <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
-      <ThemedView
-        style={[
-          styles.card,
-          {
-            backgroundColor: colorScheme === 'dark' ? '#1E293B' : '#FFFFFF',
-            borderColor: colors.icon + '30',
-          },
-        ]}>
-        <View style={styles.imageContainer}>
-          <Image source={{ uri: route.image }} style={styles.image} />
-          {isFavourite && (
-            <View style={styles.favouriteBadge}>
-              <Feather name="star" size={18} color="#FBBF24" fill="#FBBF24" />
+    <TouchableOpacity 
+      onPress={() => router.push({ pathname: '/details', params: { id: route.id.toString() }})}
+      activeOpacity={0.9}
+    >
+      <View style={[styles.container, { backgroundColor: theme.card }]}>
+        {/* Left Side: Image & Info */}
+        <View style={styles.leftSection}>
+          <Image source={{ uri: route.image }} style={styles.thumbnail} />
+          <View style={styles.info}>
+            <View style={[styles.tag, { backgroundColor: theme.highlight }]}>
+              <ThemedText style={[styles.tagText, { color: theme.tint }]}>{route.type}</ThemedText>
             </View>
-          )}
-        </View>
-        
-        <View style={styles.content}>
-          <View style={styles.header}>
-            <View style={styles.titleContainer}>
-              <ThemedText type="defaultSemiBold" style={styles.title}>
-                {route.title}
-              </ThemedText>
-              <View
-                style={[
-                  styles.statusBadge,
-                  { backgroundColor: getStatusColor(route.status) + '20' },
-                ]}>
-                <ThemedText
-                  style={[
-                    styles.statusText,
-                    { color: getStatusColor(route.status) },
-                  ]}>
-                  {route.status}
-                </ThemedText>
-              </View>
-            </View>
-            <View
-              style={[
-                styles.typeBadge,
-                { backgroundColor: colors.tint + '20' },
-              ]}>
-              <Feather
-                name={
-                  route.type === 'Bus'
-                    ? 'navigation'
-                    : route.type === 'Train'
-                    ? 'train'
-                    : 'map-pin'
-                }
-                size={12}
-                color={colors.tint}
-                style={{ marginRight: 4 }}
-              />
-              <ThemedText style={[styles.typeText, { color: colors.tint }]}>
-                {route.type}
-              </ThemedText>
-            </View>
-          </View>
-
-          <ThemedText style={styles.description} numberOfLines={2}>
-            {route.description}
-          </ThemedText>
-
-          <View style={styles.details}>
-            <View style={styles.detailItem}>
-              <Feather name="clock" size={14} color={colors.icon} style={styles.detailIcon} />
-              <ThemedText style={styles.detailLabel}>Duration</ThemedText>
-              <ThemedText style={styles.detailValue}>{route.duration}</ThemedText>
-            </View>
-            <View style={styles.detailItem}>
-              <Feather name="map-pin" size={14} color={colors.icon} style={styles.detailIcon} />
-              <ThemedText style={styles.detailLabel}>Distance</ThemedText>
-              <ThemedText style={styles.detailValue}>{route.distance}</ThemedText>
-            </View>
-            <View style={styles.detailItem}>
-              <Feather name="dollar-sign" size={14} color={colors.icon} style={styles.detailIcon} />
-              <ThemedText style={styles.detailLabel}>Cost</ThemedText>
-              <ThemedText style={[styles.detailValue, { color: colors.tint }]}>
-                {route.cost}
-              </ThemedText>
+            <ThemedText style={[styles.title, { color: theme.text }]} numberOfLines={1}>
+              {route.title}
+            </ThemedText>
+            <View style={styles.row}>
+              <Feather name="clock" size={12} color={theme.subtext} />
+              <ThemedText style={[styles.meta, { color: theme.subtext }]}>{route.duration}</ThemedText>
             </View>
           </View>
         </View>
-      </ThemedView>
+
+        {/* Divider (Dashed Line Effect) */}
+        <View style={styles.dividerContainer}>
+          <View style={[styles.circle, styles.topCircle, { backgroundColor: theme.background }]} />
+          <View style={[styles.dashedLine, { borderColor: theme.border }]} />
+          <View style={[styles.circle, styles.bottomCircle, { backgroundColor: theme.background }]} />
+        </View>
+
+        {/* Right Side: Price & Action */}
+        <View style={styles.rightSection}>
+          <ThemedText style={[styles.price, { color: theme.tint }]}>{route.cost}</ThemedText>
+          <View style={[styles.goBtn, { borderColor: theme.border }]}>
+            <Feather name="arrow-right" size={16} color={theme.text} />
+          </View>
+        </View>
+      </View>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: 16,
-    marginBottom: 16,
-    overflow: 'hidden',
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  imageContainer: {
-    position: 'relative',
-    width: '100%',
-    height: 200,
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  favouriteBadge: {
-    position: 'absolute',
-    top: 16,
-    left: 16,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 22,
-    width: 36,
-    height: 36,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 6,
-  },
-  favouriteIcon: {
-    color: '#FBBF24',
-    fontSize: 18,
-  },
-  content: {
-    padding: 20,
-  },
-  header: {
+  container: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
+    height: 110,
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 4, // Spacing handled by parent
   },
-  titleContainer: {
+  leftSection: {
     flex: 1,
-    marginRight: 8,
+    flexDirection: 'row',
+    padding: 12,
+    alignItems: 'center',
   },
-  title: {
-    fontSize: 18,
-    marginBottom: 6,
+  thumbnail: {
+    width: 80,
+    height: 86,
+    borderRadius: 12,
+    backgroundColor: '#eee',
   },
-  statusBadge: {
+  info: {
+    marginLeft: 12,
+    flex: 1,
+    justifyContent: 'space-between',
+    height: 80,
+  },
+  tag: {
+    alignSelf: 'flex-start',
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
-    alignSelf: 'flex-start',
-    marginTop: 4,
   },
-  statusText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  typeBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 6,
-    flexDirection: 'row',
+  tagText: { fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
+  title: { fontSize: 16, fontWeight: 'bold' },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  meta: { fontSize: 12 },
+  
+  // The "Ticket" Divider
+  dividerContainer: {
+    width: 20,
     alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
   },
-  typeText: {
-    fontSize: 12,
-    fontWeight: '600',
+  dashedLine: {
+    height: '70%',
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    width: 1,
   },
-  description: {
-    fontSize: 14,
-    opacity: 0.7,
-    marginBottom: 12,
-    lineHeight: 20,
+  circle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    position: 'absolute',
+    left: 0,
   },
-  details: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: 16,
-    marginTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
-  },
-  detailItem: {
+  topCircle: { top: -10 },
+  bottomCircle: { bottom: -10 },
+
+  rightSection: {
+    width: 90,
     alignItems: 'center',
-    flex: 1,
+    justifyContent: 'center',
+    padding: 12,
+    gap: 12,
   },
-  detailIcon: {
-    marginBottom: 4,
-  },
-  detailLabel: {
-    fontSize: 11,
-    opacity: 0.6,
-    marginBottom: 4,
-    textTransform: 'uppercase',
-  },
-  detailValue: {
-    fontSize: 14,
-    fontWeight: '600',
+  price: { fontSize: 18, fontWeight: '900' },
+  goBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
-
