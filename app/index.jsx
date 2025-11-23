@@ -1,9 +1,7 @@
-import { useEffect } from 'react';
 import { Redirect } from 'expo-router';
+import { useAppSelector } from '@/store/hooks';
 
 export default function Index() {
-  // For now, redirect to login screen
-  // Later we'll add authentication check here
-  return <Redirect href="/(auth)/login" />;
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  return <Redirect href={isAuthenticated ? "/(tabs)" : "/(auth)/login"} />;
 }
-
