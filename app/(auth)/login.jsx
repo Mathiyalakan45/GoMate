@@ -1,14 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Alert,
-} from 'react-native';
+import { View, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { ThemedView } from '@/components/themed-view';
@@ -29,134 +20,64 @@ export default function LoginScreen() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      Alert.alert('Validation Error', 'Please fill in all fields');
       return;
     }
-
     dispatch(loginStart());
-
     try {
-      // For now, simulate API call
-      // Later we'll add actual API call here using axios
-      const user = {
-        id: 1,
-        email: email,
-        name: 'User',
-      };
-
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const user = { id: 1, email: email, name: 'Traveler' }; // Mock user
       dispatch(loginSuccess(user));
+      // Auth Guard in _layout will handle redirect, but we can force it for UX
       router.replace('/(tabs)');
     } catch (error) {
       dispatch(loginFailure());
-      Alert.alert('Error', 'Login failed. Please try again.');
+      Alert.alert('Error', 'Login failed.');
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ThemedView style={styles.container}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.content}>
             <View style={styles.header}>
-              <ThemedText type="title" style={styles.title}>
-                Welcome to GoMate
-              </ThemedText>
-              <ThemedText style={styles.subtitle}>
-                Sign in to continue
-              </ThemedText>
+              <ThemedText type="title" style={styles.title}>Welcome to GoMate</ThemedText>
+              <ThemedText style={styles.subtitle}>Sign in to explore routes</ThemedText>
             </View>
-
             <View style={styles.form}>
-              <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>Email</ThemedText>
-                <View
-                  style={[
-                    styles.inputWrapper,
-                    {
-                      borderColor: colors.icon + '40',
-                      backgroundColor: colorScheme === 'dark' ? '#1a1a1a' : '#f5f5f5',
-                    },
-                  ]}>
-                  <Feather
-                    name="mail"
-                    size={20}
-                    color={colors.icon}
-                    style={styles.inputIcon}
-                  />
-                  <TextInput
-                    style={[
-                      styles.input,
-                      {
-                        color: colors.text,
-                      },
-                    ]}
-                    placeholder="Enter your email"
-                    placeholderTextColor={colors.icon}
-                    value={email}
-                    onChangeText={setEmail}
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    autoComplete="email"
-                  />
-                </View>
+              <View style={[styles.inputWrapper, { borderColor: colors.border, backgroundColor: colors.card }]}>
+                <Feather name="mail" size={20} color={colors.icon} style={styles.inputIcon} />
+                <TextInput 
+                  style={[styles.input, { color: colors.text }]} 
+                  placeholder="Email" 
+                  placeholderTextColor={colors.icon} 
+                  value={email} 
+                  onChangeText={setEmail} 
+                  autoCapitalize="none" 
+                />
               </View>
-
-              <View style={styles.inputContainer}>
-                <ThemedText style={styles.label}>Password</ThemedText>
-                <View
-                  style={[
-                    styles.inputWrapper,
-                    {
-                      borderColor: colors.icon + '40',
-                      backgroundColor: colorScheme === 'dark' ? '#1a1a1a' : '#f5f5f5',
-                    },
-                  ]}>
-                  <Feather
-                    name="lock"
-                    size={20}
-                    color={colors.icon}
-                    style={styles.inputIcon}
-                  />
-                  <TextInput
-                    style={[
-                      styles.input,
-                      {
-                        color: colors.text,
-                      },
-                    ]}
-                    placeholder="Enter your password"
-                    placeholderTextColor={colors.icon}
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                    autoCapitalize="none"
-                    autoComplete="password"
-                  />
-                </View>
+              <View style={[styles.inputWrapper, { borderColor: colors.border, backgroundColor: colors.card }]}>
+                <Feather name="lock" size={20} color={colors.icon} style={styles.inputIcon} />
+                <TextInput 
+                  style={[styles.input, { color: colors.text }]} 
+                  placeholder="Password" 
+                  placeholderTextColor={colors.icon} 
+                  value={password} 
+                  onChangeText={setPassword} 
+                  secureTextEntry 
+                />
               </View>
-
-              <TouchableOpacity
-                style={[styles.button, { backgroundColor: colors.tint, opacity: isLoading ? 0.7 : 1 }]}
-                onPress={handleLogin}
+              <TouchableOpacity 
+                style={[styles.button, { backgroundColor: colors.tint, opacity: isLoading ? 0.7 : 1 }]} 
+                onPress={handleLogin} 
                 disabled={isLoading}>
-                <ThemedText style={styles.buttonText}>
-                  {isLoading ? 'Logging in...' : 'Login'}
-                </ThemedText>
+                {isLoading ? <ActivityIndicator color="#fff" /> : <ThemedText style={styles.buttonText}>Login</ThemedText>}
               </TouchableOpacity>
-
-              <View style={styles.footer}>
-                <ThemedText style={styles.footerText}>Don't have an account? </ThemedText>
-                <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-                  <ThemedText style={[styles.linkText, { color: colors.tint }]}>
-                    Sign Up
-                  </ThemedText>
-                </TouchableOpacity>
-              </View>
+              <TouchableOpacity onPress={() => router.push('/(auth)/register')} style={styles.linkButton}>
+                <ThemedText style={{ color: colors.tint }}>Don't have an account? Sign Up</ThemedText>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
@@ -166,86 +87,16 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  header: {
-    marginBottom: 40,
-    alignItems: 'center',
-  },
-  title: {
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    opacity: 0.7,
-    textAlign: 'center',
-  },
-  form: {
-    width: '100%',
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 15,
-  },
-  inputIcon: {
-    marginRight: 12,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-  },
-  button: {
-    height: 52,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: 20,
-  },
-  footerText: {
-    fontSize: 14,
-  },
-  linkText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
+  container: { flex: 1 },
+  scrollContent: { flexGrow: 1, justifyContent: 'center', padding: 24 },
+  header: { alignItems: 'center', marginBottom: 32 },
+  title: { fontSize: 28, marginBottom: 8 },
+  subtitle: { fontSize: 16, opacity: 0.7 },
+  form: { gap: 16 },
+  inputWrapper: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderRadius: 12, paddingHorizontal: 16, height: 50 },
+  inputIcon: { marginRight: 12 },
+  input: { flex: 1, fontSize: 16 },
+  button: { height: 50, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginTop: 8 },
+  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  linkButton: { alignItems: 'center', marginTop: 16 },
 });
